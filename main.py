@@ -9,6 +9,7 @@ from sqlalchemy import ForeignKey, Integer, String, select
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 MODE = "lite"
+USE_CUSTOM_EQUATION = False
 
 if MODE == "lite":
     from flask_sqlalchemy_lite import SQLAlchemy
@@ -31,9 +32,15 @@ def index():
 
 
 if MODE == "lite":
+    if not USE_CUSTOM_EQUATION:
+        class Base(DeclarativeBase):
+            """Base model of sqlalchemy."""
+    else:
+        class Base(DeclarativeBase):
+            __hash__ = object.__hash__
 
-    class Base(DeclarativeBase):
-        """Base model of sqlalchemy."""
+            def __eq__(self, other):
+                return self.name == other.name
 else:
 
     class Base(db.Model):
